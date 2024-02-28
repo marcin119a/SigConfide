@@ -1,9 +1,9 @@
 import numpy as np
-from estimages.bootstrap import bootstrapSigExposures
-from estimates.standard import findSigExposures
+from sigconfide.estimates.bootstrap import bootstrapSigExposures
+from sigconfide.estimates.standard import findSigExposures
 
-from decompose.qp import decomposeQP
-from utils.utils import is_wholenumber
+from sigconfide.decompose.qp import decomposeQP
+from sigconfide.utils.utils import is_wholenumber
 def compute_p_value(exposures, threshold=0.01):
     grater_than_threshold = exposures > threshold
 
