@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='CancerSignatureAnalysis',
+    name='SigConfide',
     version='0.1.0',
     author='Marcin Wierzbiński, Damian Wójtowicz',
     author_email='m.wierzbinski@uw.edu.pl',

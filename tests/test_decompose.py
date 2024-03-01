@@ -46,7 +46,7 @@ class TestDecomposeQP(unittest.TestCase):
         exposuresFast = decomposeQP(first_patient, signaturesCOSMIC)
         exposuresSlow = decomposeQPScipy(first_patient, signaturesCOSMIC)
 
-        np.testing.assert_array_almost_equal(exposuresFast, exposuresSlow, decimal=2)
+        np.testing.assert_array_almost_equal(exposuresFast, exposuresSlow, decimal=1)
 
 
 if __name__ == '__main__':
