@@ -2,6 +2,8 @@ import unittest
 from sigconfide.utils.utils import *
 import os
 class TestUtils(unittest.TestCase):
+
+
     def test_detect_format(self):
         """Test the detection of data formats."""
         csv_line = 'C>A,ACA,66,83,88,78,90,46,73'
@@ -10,16 +12,16 @@ class TestUtils(unittest.TestCase):
         unknown_line = 'C>A ACA 66 83 88 78 90 46 73'
 
         # Test CSV format detection
-        self.assertEqual(detect_format(csv_line), 'CSV Format', "Should detect CSV Format")
+        self.assertEqual(detect_format(csv_line), ('CSV Format', ','), "Should detect CSV Format")
 
         # Test TSV format detection
-        self.assertEqual(detect_format(tsv_line), 'TSV Format', "Should detect TSV Format")
+        self.assertEqual(detect_format(tsv_line), ('TSV Format', '\t'), "Should detect TSV Format")
 
         # Test Mutated TSV format detection
-        self.assertEqual(detect_format(mutated_tsv_line), 'Mutated TSV Format', "Should detect Mutated TSV Format")
+        self.assertEqual(detect_format(mutated_tsv_line), ('Mutated TSV Format', '\t'), "Should detect Mutated TSV Format")
 
         # Test unknown format detection
-        self.assertEqual(detect_format(unknown_line), 'Unknown Format', "Should detect Unknown Format")
+        self.assertEqual(detect_format(unknown_line), ('Unknown Format', None), "Should detect Unknown Format")
 
     def test_detect_format(self):
         """Test the detection of data formats."""
@@ -31,10 +33,10 @@ class TestUtils(unittest.TestCase):
 
         # Assume detect_format function exists and performs format detection
         # Test CSV format detection
-        self.assertEqual(detect_format(csv_line), 'CSV Format', "Should detect CSV Format")
+        self.assertEqual(detect_format(csv_line), ('CSV Format', ','), "Should detect CSV Format")
 
         # Test TSV format detection
-        self.assertEqual(detect_format(tsv_line), 'TSV Format', "Should detect TSV Format")
+        self.assertEqual(detect_format(tsv_line), ('TSV Format', '\t'), "Should detect TSV Format")
 
     def test_frobenius_norm(self):
         M = np.array([[1, 2], [4, 5]])
@@ -88,3 +90,19 @@ class TestUtils(unittest.TestCase):
                         "2.0000000000000001 should be identified as a whole number within default tolerance")
         self.assertTrue(is_wholenumber(-3.0000000000000001),
                         "-3.0000000000000001 should be identified as a whole number within default tolerance")
+
+
+
+class TestLoadSamplesFile(unittest.TestCase):
+    def test_load_csv(self):
+        samples = load_samples_file('data/test_csv.csv')
+
+        expected_result = np.array([[7, 8, 9]])
+        np.testing.assert_array_equal(samples, expected_result)
+
+    def test_load_tsv(self):
+        samples = load_samples_file('data/test_tsv.tsv')
+
+        expected_result = np.array([[2, 3], [5, 6]])
+        np.testing.assert_array_equal(samples, expected_result)
+
