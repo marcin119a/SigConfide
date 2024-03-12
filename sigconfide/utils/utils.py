@@ -51,15 +51,22 @@ def load_samples_file(file_name):
         format, sep = detect_format(csv_line)
         file.seek(0)
         samples = np.genfromtxt(file, delimiter=sep, skip_header=1)
-    print(format)
     if format == 'TSV Format' or format == 'Mutated CSV Format':
         samples = np.delete(samples, 0, axis=1)
+        patients_names = np.genfromtxt(file_name, delimiter=sep, skip_header=0, max_rows=1, dtype=str).squeeze()[1:]
 
     if format == 'CSV Format':
-        samples = np.delete(samples, [0, 1], axis=0)
-
+        samples = np.delete(samples, [0, 1], axis=1)
+        patients_names = np.genfromtxt(file_name, delimiter=sep, skip_header=0, max_rows=1, dtype=str).squeeze()[2:]
     if format == 'Unknown Format':
         raise ValueError('Unknown Format')
 
-    return samples
+    return samples, patients_names
 
+def load_signatures_file(file_name):
+    COSMIC = np.genfromtxt(file_name, delimiter='\t', skip_header=1)
+    names_signatures = np.genfromtxt(file_name, delimiter='\t', skip_header=0, max_rows=1, dtype=str)[1:]
+    names_signatures = np.insert(names_signatures, 0, 'Samples', axis=0)
+    COSMIC = np.delete(COSMIC, 0, axis=1)
+
+    return COSMIC, names_signatures

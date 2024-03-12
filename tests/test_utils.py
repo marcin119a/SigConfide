@@ -26,17 +26,23 @@ class TestUtils(unittest.TestCase):
     def test_detect_format(self):
         """Test the detection of data formats."""
         with open('data/format_2.dat', 'r') as file:
-            csv_line = file.readline().strip()
+            csv_line = file.read()
 
         with open('data/format_1.dat', 'r') as file:
-            tsv_line = file.readline().strip()
+            tsv_line = file.read()
+
+        with open('data/tumorBRCA.csv', 'r') as file:
+            csv_line2 = file.read()
 
         # Assume detect_format function exists and performs format detection
         # Test CSV format detection
         self.assertEqual(detect_format(csv_line), ('CSV Format', ','), "Should detect CSV Format")
 
         # Test TSV format detection
-        self.assertEqual(detect_format(tsv_line), ('TSV Format', '\t'), "Should detect TSV Format")
+        self.assertEqual(detect_format(tsv_line), ('Mutated TSV Format', '\t'), "Should detect TSV Format")
+
+        # Test CSV format detection
+        self.assertEqual(detect_format(csv_line2), ('Mutated CSV Format', ','), "Should detect Mutated CSV Format")
 
     def test_frobenius_norm(self):
         M = np.array([[1, 2], [4, 5]])
@@ -95,14 +101,15 @@ class TestUtils(unittest.TestCase):
 
 class TestLoadSamplesFile(unittest.TestCase):
     def test_load_csv(self):
-        samples = load_samples_file('data/test_csv.csv')
+        samples, names = load_samples_file('data/test_csv.csv')
 
-        expected_result = np.array([[7, 8, 9]])
+        expected_result = np.array([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]])
         np.testing.assert_array_equal(samples, expected_result)
 
     def test_load_tsv(self):
-        samples = load_samples_file('data/test_tsv.tsv')
+        samples, names = load_samples_file('data/test_tsv.tsv')
 
         expected_result = np.array([[2, 3], [5, 6]])
         np.testing.assert_array_equal(samples, expected_result)
+
 
