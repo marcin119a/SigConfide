@@ -33,13 +33,31 @@ def detect_format(line):
     if '\t' in line:
         # Additionally, check if square brackets are present
         if '[' in line and (']' in line):
-            return 'Mutated TSV Format'
-        return 'TSV Format'
+            return 'Mutated TSV Format', '\t'
+        return 'TSV Format', '\t'
 
     # Check if the line contains commas - this suggests CSV format
     elif ',' in line:
-        return 'CSV Format'
+        return 'CSV Format', ','
 
     # If none of the above were detected, return an unknown value
-    return 'Unknown Format'
+    return 'Unknown Format', None
+
+def load_samples_file(file_name):
+    with open(file_name, 'r') as file:
+        csv_line = file.readline().strip()
+        format, sep = detect_format(csv_line)
+        file.seek(0)
+        samples = np.genfromtxt(file, delimiter=sep, skip_header=1)
+
+    if format == 'TSV Format':
+        samples = np.delete(samples, 0, axis=1)
+
+    if format == 'CSV Format':
+        samples = np.delete(samples, [0, 1], axis=0)
+
+    if format == 'Unknown Format':
+        raise ValueError('Unknown Format')
+
+    return samples
 
