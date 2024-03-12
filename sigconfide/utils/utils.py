@@ -26,3 +26,20 @@ def load_and_process_data(patient_index, mutational_profiles, predf_mutational_s
 
     # Return processed data
     return profile, signatures
+
+
+def detect_format(line):
+    # Check if the line contains tabs - this suggests TSV format
+    if '\t' in line:
+        # Additionally, check if square brackets are present
+        if '[' in line and (']' in line):
+            return 'Mutated TSV Format'
+        return 'TSV Format'
+
+    # Check if the line contains commas - this suggests CSV format
+    elif ',' in line:
+        return 'CSV Format'
+
+    # If none of the above were detected, return an unknown value
+    return 'Unknown Format'
+

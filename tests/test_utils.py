@@ -1,8 +1,41 @@
-import numpy as np
 import unittest
 from sigconfide.utils.utils import *
 import os
 class TestUtils(unittest.TestCase):
+    def test_detect_format(self):
+        """Test the detection of data formats."""
+        csv_line = 'C>A,ACA,66,83,88,78,90,46,73'
+        tsv_line = 'AC>AA\t66\t83\t88\t78\t90\t46\t73'
+        mutated_tsv_line = 'A[C>A]A\t66\t83\t88\t78\t90\t46\t73'  # Example same as TSV for illustration
+        unknown_line = 'C>A ACA 66 83 88 78 90 46 73'
+
+        # Test CSV format detection
+        self.assertEqual(detect_format(csv_line), 'CSV Format', "Should detect CSV Format")
+
+        # Test TSV format detection
+        self.assertEqual(detect_format(tsv_line), 'TSV Format', "Should detect TSV Format")
+
+        # Test Mutated TSV format detection
+        self.assertEqual(detect_format(mutated_tsv_line), 'Mutated TSV Format', "Should detect Mutated TSV Format")
+
+        # Test unknown format detection
+        self.assertEqual(detect_format(unknown_line), 'Unknown Format', "Should detect Unknown Format")
+
+    def test_detect_format(self):
+        """Test the detection of data formats."""
+        with open('data/format_2.dat', 'r') as file:
+            csv_line = file.readline().strip()
+
+        with open('data/format_1.dat', 'r') as file:
+            tsv_line = file.readline().strip()
+
+        # Assume detect_format function exists and performs format detection
+        # Test CSV format detection
+        self.assertEqual(detect_format(csv_line), 'CSV Format', "Should detect CSV Format")
+
+        # Test TSV format detection
+        self.assertEqual(detect_format(tsv_line), 'TSV Format', "Should detect TSV Format")
+
     def test_frobenius_norm(self):
         M = np.array([[1, 2], [4, 5]])
         P = np.array([[1, 1], [2, 8]])
