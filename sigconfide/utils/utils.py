@@ -38,6 +38,8 @@ def detect_format(line):
 
     # Check if the line contains commas - this suggests CSV format
     elif ',' in line:
+        if ('[' in line) and (']' in line):
+            return 'Mutated CSV Format', ','
         return 'CSV Format', ','
 
     # If none of the above were detected, return an unknown value
@@ -45,12 +47,12 @@ def detect_format(line):
 
 def load_samples_file(file_name):
     with open(file_name, 'r') as file:
-        csv_line = file.readline().strip()
+        csv_line = ''.join(file.readlines()).strip()
         format, sep = detect_format(csv_line)
         file.seek(0)
         samples = np.genfromtxt(file, delimiter=sep, skip_header=1)
-
-    if format == 'TSV Format':
+    print(format)
+    if format == 'TSV Format' or format == 'Mutated CSV Format':
         samples = np.delete(samples, 0, axis=1)
 
     if format == 'CSV Format':

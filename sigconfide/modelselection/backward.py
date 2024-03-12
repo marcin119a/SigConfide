@@ -1,5 +1,4 @@
 import numpy as np
-from sigconfide.estimates.bootstrap import bootstrapSigExposures
 from sigconfide.estimates.standard import findSigExposures
 
 from sigconfide.decompose.qp import decomposeQP
@@ -86,7 +85,7 @@ def backward_elimination(
     :param decomposition_method: The method used to decompose the mutation profile into signature exposures. Defaults to 'decomposeQP'.
     :type decomposition_method: function, optional
 
-    :returns: A tuple containing the indices of the significant signatures, the exposures and errors from the final bootstrap resampling, and the exposures and errors from decomposing the original mutation profile.
+    :returns: A tuple containing the indices of the significant signatures and the exposures and errors from decomposing the original mutation profile.
     :rtype: tuple(numpy.ndarray, tuple(numpy.ndarray, numpy.ndarray), tuple(numpy.ndarray, numpy.ndarray))
     """
 
@@ -117,13 +116,6 @@ def backward_elimination(
 
     return (
         best_columns,
-        bootstrapSigExposures(
-            m,
-            P_temp,
-            mutation_count=mutation_count,
-            R=R,
-            decomposition_method=decomposition_method,
-        ),
         findSigExposures(
             m.reshape(-1, 1), P_temp, decomposition_method=decomposition_method
         ),
