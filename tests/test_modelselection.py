@@ -1,75 +1,53 @@
-import unittest
-from sigconfide.estimates.bootstrap import bootstrapSigExposures
-from sigconfide.estimates.crossvalidation import crossValidationSigExposures
-from sigconfide.estimates.standard import findSigExposures
-from sigconfide.utils.utils import load_and_process_data
 import numpy as np
+import unittest
 
+from sigconfide.modelselection.backward import compute_p_value
+from sigconfide.modelselection.backward import bootstraped_patient
+class TestComputePValue(unittest.TestCase):
 
-class TestEstimateExposures(unittest.TestCase):
-    def test_findSigExposures(self):
-        M = np.array([[0.5, 0.3, 0.2], [0.9, 0.05, 0.05], [0.7, 0.1, 0.2]])
-        P = np.array([[0.2, 0.3, 0.5], [0.1, 0.4, 0.5], [0.3, 0.1, 0.6]])
-
-        exposures, errors = findSigExposures(M, P)
-        #data obtaining from R code
-        expected_exposures = np.array([
-            [0.2007233, 0.4317862, 0.6437908],
-            [0.4755877, 0.2883263, 0.0000000],
-            [0.3236890, 0.2798875, 0.3562092]
+    def test_compute_p_value(self):
+        # Create a mock exposures array
+        exposures = np.array([
+            [0.02, 0.03, 0.00, 0.01],  # 2 out of 4 exposures are greater than threshold
+            [0.05, 0.02, 0.03, 0.04],  # All exposures are greater than threshold
+            [0.00, 0.00, 0.00, 0.00]   # No exposures are greater than threshold
         ])
-        expected_errors = np.array([
-            0.1245907, 0.4137049, 0.1939068]
-        )
 
-        np.testing.assert_array_almost_equal(exposures, expected_exposures, decimal=7)
-        np.testing.assert_array_almost_equal(errors, expected_errors, decimal=7)
+        # Expected p-values
+        expected = np.array([
+            0.5,  # 50% of the exposures are not significant
+            0.0,  # 0% of the exposures are not significant
+            1.0   # 100% of the exposures are not significant
+        ])
 
-    def test_findSigExposuresReal(self):
-        profile, signatures = load_and_process_data(None,
-                                                         'data/tumorBRCA.csv',
-                                                         'data/signaturesCOSMIC.csv')
+        # Compute the p-values
+        actual = compute_p_value(exposures)
 
-        exposures, errors = findSigExposures(profile, signatures)
-        expected_exposures = np.genfromtxt('data/R_exposures.csv', delimiter=',', skip_header=1)
-        expected_exposures = np.delete(expected_exposures, 0, axis=1).squeeze()
-        expected_errors = np.genfromtxt('data/R_errors.csv', delimiter=',', skip_header=1)
-        expected_errors = np.delete(expected_errors, 0, axis=1).squeeze()
-
-        np.testing.assert_array_almost_equal(exposures, expected_exposures, decimal=7)
-        np.testing.assert_array_almost_equal(errors, expected_errors, decimal=7)
-class TestBootstrapSigExposures(unittest.TestCase):
-    def test_bootstrap_sample(self):
-        m = np.array([0.5, 0.3, 0.2])
-        P = np.array([[0.2, 0.3, 0.5], [0.1, 0.4, 0.5], [0.3, 0.1, 0.6]])
-
-        expected_exposures = np.array(
-            [[0.1025316, 0.2443038, 0.0481013],
-            [0.664557, 0.4797468, 0.7065823],
-            [0.2329114, 0.2759494, 0.2453165]]
-        )
-
-        np.random.seed(42)
-
-        exposures, errors = bootstrapSigExposures(m, mutation_count=100, R=3, P=P)
-
-        np.testing.assert_array_almost_equal(exposures, expected_exposures, decimal=7)
+        # Assert that the actual p-values match the expected p-values
+        np.testing.assert_array_almost_equal(actual, expected, decimal=2)
 
 
-class TestCrossValidationSigExposures(unittest.TestCase):
+class TestBootstrapedPatient(unittest.TestCase):
 
-    def test_crossvalidation(self):
-        m = np.array([0.5, 0.3, 0.2])
-        P = np.array([[0.2, 0.3, 0.5], [0.1, 0.4, 0.5], [0.3, 0.1, 0.6]])
-        np.random.seed(42)
-        expected_exposures = np.array([
-            [0.0886076, 0.6764706, 0.],
-            [0.5594937, 0., 0.9583333],
-            [0.3518987, 0.3235294, 0.0416667]]
-        )
+    def test_bootstraped_patient_valid_input(self):
+        m = np.array([10, 20, 30])
+        mutation_count = 60  # Explicit mutation count
+        R = 10  # Number of replicates
+        bootstrap_replicates = bootstraped_patient(m, mutation_count, R)
 
-        exposures, errors = crossValidationSigExposures(m, P, fold_size=1)
-        np.testing.assert_array_almost_equal(exposures, expected_exposures, decimal=7)
+        self.assertEqual(bootstrap_replicates.shape, (len(m), R))  # Check shape of the output
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_bootstraped_patient_no_mutation_count(self):
+        m = np.array([10, 20, 30])
+        R = 10
+        bootstrap_replicates = bootstraped_patient(m, None, R)
+
+        self.assertEqual(bootstrap_replicates.shape, (len(m), R))  # Should compute mutation_count automatically
+
+    def test_bootstraped_patient_non_integer_values(self):
+        m = np.array([10.5, 20.2, 30.3])  # Non-integer values
+        R = 10
+
+        with self.assertRaises(ValueError):
+            bootstraped_patient(m, None, R)  # Should raise ValueError
+
