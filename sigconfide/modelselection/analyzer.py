@@ -36,11 +36,11 @@ def cosmic_fit(samples_file, output_file, threshold=0.01,
     output = np.zeros((samples.shape[1], len(names_signatures)))
     output = np.vstack([names_signatures, output])
 
-    args_list = [(i, samples[:, i], COSMIC, threshold, mutation_count, R, significance_level) for i in range(samples.shape[1])]
+    for i in range(samples.shape[1]):
+        _, best_columns, estimation_exposures = process_sample(
+            (i, samples[:, i], COSMIC, threshold, mutation_count, R, significance_level))
 
-    with ThreadPoolExecutor() as executor:
-        for i, best_columns, estimation_exposures in executor.map(process_sample, args_list):
-            if best_columns is not None:
+        if best_columns is not None:
                 for ind, col in enumerate(best_columns):
                     output[i + 1, col + 1] = estimation_exposures[0].squeeze()[ind]
                 output[i + 1, 0] = names_patients[i]
