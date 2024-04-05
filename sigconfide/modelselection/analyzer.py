@@ -4,7 +4,6 @@ from sigconfide.utils import utils
 import numpy as np
 import os
 import sys
-from concurrent.futures import ThreadPoolExecutor
 
 module_path = os.path.dirname(utils.__file__)
 
@@ -27,7 +26,7 @@ def process_sample(args):
         print(f"Error processing sample {i}: {e}")
         return (i, None, None)
 
-def cosmic_fit(samples_file, output_file, threshold=0.01,
+def cosmic_fit(samples_file, output_folder, threshold=0.01,
                mutation_count=None, R=100, significance_level=0.01, cosmic_version=3.4,
                drop_zeros_columns=False):
     COSMIC, names_signatures = load_signatures_file(versions[cosmic_version])
@@ -49,12 +48,13 @@ def cosmic_fit(samples_file, output_file, threshold=0.01,
                 sys.stdout.write('\r')
                 sys.stdout.write("[%-20s] %d%%" % ('=' * int(20 * percent), 100 * percent))
                 sys.stdout.flush()
+    utils.create_folder_if_not_exists(output_folder)
     if not drop_zeros_columns:
-        np.savetxt(output_file + "/Assignment_Solution_Activities.csv", output, delimiter=",", fmt='%s')
+        np.savetxt(output_folder + "/Assignment_Solution_Activities.csv", output, delimiter=",", fmt='%s')
     else:
         is_non_zero_column = np.array([i != 0 if i > 0 else True for i in range(output.shape[1])])
         for col in range(1, output.shape[1]):
             if np.all(output[1:, col].astype(np.float32) == 0.0):
                 is_non_zero_column[col] = False
         filtered_output = output[:, is_non_zero_column]
-        np.savetxt(output_file + "/Assignment_Solution_Activities.csv", filtered_output, delimiter=',', fmt='%s')
+        np.savetxt(output_folder + "/Assignment_Solution_Activities.csv", filtered_output, delimiter=',', fmt='%s')

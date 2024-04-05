@@ -3,8 +3,9 @@ import unittest
 from scipy.optimize import minimize
 
 from sigconfide.decompose.qp import decomposeQP
-from sigconfide.utils.utils import load_and_process_data, FrobeniusNorm
-
+from sigconfide.utils.utils import FrobeniusNorm, load_samples_file, load_signatures_file
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 def decomposeQPScipy(m, P):
     N = P.shape[1]
@@ -29,6 +30,7 @@ class TestDecomposeQP(unittest.TestCase):
     def test_decomposeQP(self):
         # Example input data
         m = np.array([0.5, 0.3, 0.2])
+        print(m.shape)
         P = np.array([[0.2, 0.3, 0.5], [0.1, 0.4, 0.5], [0.3, 0.1, 0.6]])
 
         exposuresFast = decomposeQP(m, P)
@@ -37,16 +39,28 @@ class TestDecomposeQP(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(exposuresFast, exposuresSlow, decimal=3)
 
-    def test_real_data_decomposeQP(self):
-        first_patient, signaturesCOSMIC = (
-            load_and_process_data(patient_index=0,
-                                  mutational_profiles='data/tumorBRCA.csv',
-                                  predf_mutational_signatures='data/signaturesCOSMIC.csv'))
+    def test_real_data_decomposeQP_first_patient(self):
+        samples, names = load_samples_file(os.path.join(current_dir, 'data', 'tumorBRCA.txt'))
+        signaturesCOSMIC, names_signatures = load_signatures_file(os.path.join(current_dir, 'data', 'COSMIC_v2_SBS_GRCh37.txt'))
+        first_patient = samples[:, 0]
 
         exposuresFast = decomposeQP(first_patient, signaturesCOSMIC)
         exposuresSlow = decomposeQPScipy(first_patient, signaturesCOSMIC)
 
         np.testing.assert_array_almost_equal(exposuresFast, exposuresSlow, decimal=1)
+
+
+    def test_real_data_decomposeQP_all_patients(self):
+        samples, names = load_samples_file(os.path.join(current_dir, 'data', 'tumorBRCA.txt'))
+        signaturesCOSMIC, names_signatures = load_signatures_file(os.path.join(current_dir, 'data', 'COSMIC_v2_SBS_GRCh37.txt'))
+
+        for i in range(samples.shape[1]):
+            patient = samples[:, i]
+
+            exposuresFast = decomposeQP(patient, signaturesCOSMIC)
+            exposuresSlow = decomposeQPScipy(patient, signaturesCOSMIC)
+
+            np.testing.assert_array_almost_equal(exposuresFast, exposuresSlow, decimal=1)
 
 
 if __name__ == '__main__':
