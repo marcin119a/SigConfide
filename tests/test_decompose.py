@@ -4,7 +4,8 @@ from scipy.optimize import minimize
 
 from sigconfide.decompose.qp import decomposeQP
 from sigconfide.utils.utils import FrobeniusNorm, load_samples_file, load_signatures_file
-
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 def decomposeQPScipy(m, P):
     N = P.shape[1]
@@ -39,8 +40,8 @@ class TestDecomposeQP(unittest.TestCase):
         np.testing.assert_array_almost_equal(exposuresFast, exposuresSlow, decimal=3)
 
     def test_real_data_decomposeQP_first_patient(self):
-        samples, names = load_samples_file('data/tumorBRCA.txt')
-        signaturesCOSMIC, names_signatures = load_signatures_file('data/signaturesCOSMIC.csv')
+        samples, names = load_samples_file(os.path.join(current_dir, 'data', 'tumorBRCA.txt'))
+        signaturesCOSMIC, names_signatures = load_signatures_file(os.path.join(current_dir, 'data', 'COSMIC_v2_SBS_GRCh37.txt'))
         first_patient = samples[:, 0]
 
         exposuresFast = decomposeQP(first_patient, signaturesCOSMIC)
@@ -50,8 +51,8 @@ class TestDecomposeQP(unittest.TestCase):
 
 
     def test_real_data_decomposeQP_all_patients(self):
-        samples, names = load_samples_file('data/tumorBRCA.txt')
-        signaturesCOSMIC, names_signatures = load_signatures_file('data/signaturesCOSMIC.csv')
+        samples, names = load_samples_file(os.path.join(current_dir, 'data', 'tumorBRCA.txt'))
+        signaturesCOSMIC, names_signatures = load_signatures_file(os.path.join(current_dir, 'data', 'COSMIC_v2_SBS_GRCh37.txt'))
 
         for i in range(samples.shape[1]):
             patient = samples[:, i]

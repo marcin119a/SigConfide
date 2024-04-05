@@ -1,6 +1,7 @@
 import unittest
 from sigconfide.utils.utils import *
 import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
 class TestUtils(unittest.TestCase):
     def test_detect_format(self):
         """Test the detection of data formats."""
@@ -23,13 +24,13 @@ class TestUtils(unittest.TestCase):
 
     def test_detect_format(self):
         """Test the detection of data formats."""
-        with open('data/format_2.dat', 'r') as file:
+        with open(os.path.join(current_dir, 'data', 'format_2.dat'), 'r') as file:
             csv_line = file.read()
 
-        with open('data/format_1.dat', 'r') as file:
+        with open(os.path.join(current_dir, 'data', 'format_1.dat'), 'r') as file:
             tsv_line = file.read()
 
-        with open('data/tumorBRCA.txt', 'r') as file:
+        with open(os.path.join(current_dir, 'data', 'tumorBRCA.txt'), 'r') as file:
             csv_line2 = file.read()
 
         # Assume detect_format function exists and performs format detection
@@ -78,13 +79,14 @@ class TestUtils(unittest.TestCase):
 
 class TestLoadSamplesFile(unittest.TestCase):
     def test_load_csv(self):
-        samples, names = load_samples_file('data/test_csv.csv')
+
+        samples, names = load_samples_file(os.path.join(current_dir, 'data', 'test_csv.csv'))
 
         expected_result = np.array([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]])
         np.testing.assert_array_equal(samples, expected_result)
 
     def test_load_tsv(self):
-        samples, names = load_samples_file('data/test_tsv.tsv')
+        samples, names = load_samples_file(os.path.join(current_dir, 'data', 'text_tsv.tsv'))
 
         expected_result = np.array([[2, 3], [5, 6]])
         np.testing.assert_array_equal(samples, expected_result)
