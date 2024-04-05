@@ -86,7 +86,7 @@ class TestLoadSamplesFile(unittest.TestCase):
         np.testing.assert_array_equal(samples, expected_result)
 
     def test_load_tsv(self):
-        samples, names = load_samples_file(os.path.join(current_dir, 'data', 'text_tsv.tsv'))
+        samples, names = load_samples_file(os.path.join(current_dir, 'data', 'test_tsv.tsv'))
 
         expected_result = np.array([[2, 3], [5, 6]])
         np.testing.assert_array_equal(samples, expected_result)

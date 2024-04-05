@@ -4,7 +4,8 @@ from sigconfide.estimates.crossvalidation import crossValidationSigExposures
 from sigconfide.estimates.standard import findSigExposures
 from sigconfide.utils.utils import load_samples_file, load_signatures_file
 import numpy as np
-
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 class TestEstimateExposures(unittest.TestCase):
     def test_findSigExposures(self):
@@ -26,13 +27,13 @@ class TestEstimateExposures(unittest.TestCase):
         np.testing.assert_array_almost_equal(errors, expected_errors, decimal=7)
 
     def test_findSigExposuresReal(self):
-        profile, names = load_samples_file('data/tumorBRCA.txt')
-        signatures, names_signatures = load_signatures_file('data/signaturesCOSMIC.csv')
+        profile, names = load_samples_file(os.path.join(current_dir, 'data', 'tumorBRCA.txt'))
+        signatures, names_signatures = load_signatures_file(os.path.join(current_dir, 'data', 'COSMIC_v2_SBS_GRCh37.txt'))
 
         exposures, errors = findSigExposures(profile, signatures)
-        expected_exposures = np.genfromtxt('data/R_exposures.csv', delimiter=',', skip_header=1)
+        expected_exposures = np.genfromtxt(os.path.join(current_dir, 'data', 'R_exposures.csv'), delimiter=',', skip_header=1)
         expected_exposures = np.delete(expected_exposures, 0, axis=1).squeeze()
-        expected_errors = np.genfromtxt('data/R_errors.csv', delimiter=',', skip_header=1)
+        expected_errors = np.genfromtxt(os.path.join(current_dir, 'data', 'R_errors.csv'), delimiter=',', skip_header=1)
         expected_errors = np.delete(expected_errors, 0, axis=1).squeeze()
 
         np.testing.assert_array_almost_equal(exposures, expected_exposures, decimal=7)
