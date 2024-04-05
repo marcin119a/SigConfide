@@ -2,7 +2,7 @@ import unittest
 from sigconfide.estimates.bootstrap import bootstrapSigExposures
 from sigconfide.estimates.crossvalidation import crossValidationSigExposures
 from sigconfide.estimates.standard import findSigExposures
-from sigconfide.utils.utils import load_and_process_data
+from sigconfide.utils.utils import load_samples_file, load_signatures_file
 import numpy as np
 
 
@@ -26,9 +26,8 @@ class TestEstimateExposures(unittest.TestCase):
         np.testing.assert_array_almost_equal(errors, expected_errors, decimal=7)
 
     def test_findSigExposuresReal(self):
-        profile, signatures = load_and_process_data(None,
-                                                         'data/tumorBRCA.csv',
-                                                         'data/signaturesCOSMIC.csv')
+        profile, names = load_samples_file('data/tumorBRCA.txt')
+        signatures, names_signatures = load_signatures_file('data/signaturesCOSMIC.csv')
 
         exposures, errors = findSigExposures(profile, signatures)
         expected_exposures = np.genfromtxt('data/R_exposures.csv', delimiter=',', skip_header=1)

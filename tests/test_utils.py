@@ -2,8 +2,6 @@ import unittest
 from sigconfide.utils.utils import *
 import os
 class TestUtils(unittest.TestCase):
-
-
     def test_detect_format(self):
         """Test the detection of data formats."""
         csv_line = 'C>A,ACA,66,83,88,78,90,46,73'
@@ -31,7 +29,7 @@ class TestUtils(unittest.TestCase):
         with open('data/format_1.dat', 'r') as file:
             tsv_line = file.read()
 
-        with open('data/tumorBRCA.csv', 'r') as file:
+        with open('data/tumorBRCA.txt', 'r') as file:
             csv_line2 = file.read()
 
         # Assume detect_format function exists and performs format detection
@@ -42,7 +40,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(detect_format(tsv_line), ('Mutated TSV Format', '\t'), "Should detect TSV Format")
 
         # Test CSV format detection
-        self.assertEqual(detect_format(csv_line2), ('Mutated CSV Format', ','), "Should detect Mutated CSV Format")
+        self.assertEqual(detect_format(csv_line2), ('Mutated TSV Format', '\t'), "Should detect Mutated CSV Format")
 
     def test_frobenius_norm(self):
         M = np.array([[1, 2], [4, 5]])
@@ -56,26 +54,6 @@ class TestUtils(unittest.TestCase):
 
         # Check if the result matches the expected result
         self.assertAlmostEqual(result, expected_result, places=5)
-    def test_valid_data_files(self):
-        """Test loading and processing with valid data files."""
-        profile, signatures = load_and_process_data(0, "data/tumorBRCA.csv", "data/signaturesCOSMIC.csv")
-        self.assertIsNotNone(profile, "Profile should not be None")
-        self.assertIsNotNone(signatures, "Signatures should not be None")
-
-    def test_nonexistent_files(self):
-        """Test handling of non-existent files."""
-        with self.assertRaises(FileNotFoundError):
-            load_and_process_data(0, "nonexistent.csv", "nonexistent.csv")
-
-    def test_empty_files(self):
-        """Test handling of empty files."""
-        # Create empty file
-        open('data/empty.csv', 'w').close()
-        with self.assertRaises(ValueError):
-            load_and_process_data(0, "data/empty.csv", "data/empty.csv")
-        # Cleanup
-        os.remove('data/empty.csv')
-
 
     def test_is_wholenumber(self):
         # Test with whole numbers
@@ -96,7 +74,6 @@ class TestUtils(unittest.TestCase):
                         "2.0000000000000001 should be identified as a whole number within default tolerance")
         self.assertTrue(is_wholenumber(-3.0000000000000001),
                         "-3.0000000000000001 should be identified as a whole number within default tolerance")
-
 
 
 class TestLoadSamplesFile(unittest.TestCase):
