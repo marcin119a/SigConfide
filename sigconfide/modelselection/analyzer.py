@@ -29,7 +29,31 @@ def process_sample(args):
 def cosmic_fit(samples_file, output_folder, threshold=0.01,
                mutation_count=None, R=100, significance_level=0.01, cosmic_version=3.4,
                drop_zeros_columns=False):
-    COSMIC, names_signatures = load_signatures_file(versions[cosmic_version])
+    """
+     Analyzes genetic samples to determine their fit against known COSMIC (Catalogue Of Somatic Mutations In Cancer) signatures.
+     This function processes each sample from a given input file to identify the best fitting mutational signatures based on the COSMIC database, and then exports the exposure estimates to a specified output folder.
+
+     Parameters:
+     - samples_file (str): Path to the file containing the genetic sample data to be analyzed.
+     - output_folder (str): Path to the folder where the output files containing the assignment of samples to mutational signatures will be saved.
+     - threshold (float, optional): The threshold value used to determine the fit of a sample to a signature. Default is 0.01.
+     - mutation_count (int, optional): The total number of mutations to consider in the analysis. If None, the function will use all mutations available in the samples. Default is None.
+     - R (int, optional): The number of iterations for the fitting algorithm. Higher values increase accuracy but also computational time. Default is 100.
+     - significance_level (float, optional): The statistical significance level used in the fitting process. Default is 0.01.
+     - cosmic_version (float, optional): The version of the COSMIC mutational signatures to use. Default is 3.4.
+     - drop_zeros_columns (bool, optional): If True, columns with all zero values in the output matrix will be removed. Default is False.
+
+     Returns:
+     - None. The function saves the results in the specified output folder as "Assignment_Solution_Activities.csv". If drop_zeros_columns is True, columns containing only zeros will be excluded from the output.
+
+     Note:
+     - The function requires numpy for matrix operations and assumes the availability of `load_signatures_file`, `load_samples_file`, `process_sample`, and `utils.create_folder_if_not_exists` utility functions.
+     - The output CSV file will contain the names of the signatures as the first row and the names of the samples as the first column. The rest of the matrix represents the estimated exposures of each sample to each signature.
+     """
+    if isinstance(cosmic_version, float):
+        COSMIC, names_signatures = load_signatures_file(versions[cosmic_version])
+    if isinstance(cosmic_version, str):
+        COSMIC, names_signatures = load_signatures_file(cosmic_version)
     samples, names_patients = load_samples_file(samples_file)
 
     output = np.zeros((samples.shape[1], len(names_signatures)))
