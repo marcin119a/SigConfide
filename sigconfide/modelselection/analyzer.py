@@ -16,22 +16,22 @@ versions = {
 }
 
 def process_sample(args):
-    i, col, COSMIC, threshold, mutation_count, R, significance_level = args
+    i, col, sigs, threshold, mutation_count, R, significance_level = args
     try:
         best_columns, estimation_exposures = backward_elimination(
-            col, COSMIC, threshold=threshold, mutation_count=mutation_count, R=R, significance_level=significance_level
+            col, sigs, threshold=threshold, mutation_count=mutation_count, R=R, significance_level=significance_level
         )
         return (i, best_columns, estimation_exposures)
     except Exception as e:
         print(f"Error processing sample {i}: {e}")
         return (i, None, None)
 
-def cosmic_fit(samples_file, output_folder, threshold=0.01,
-               mutation_count=None, R=100, significance_level=0.01, cosmic_version=3.4,
+def fit(samples_file, output_folder, threshold=0.01,
+               mutation_count=None, R=100, significance_level=0.01, signatures=3.4,
                drop_zeros_columns=False):
     """
-     Analyzes genetic samples to determine their fit against known COSMIC (Catalogue Of Somatic Mutations In Cancer) signatures.
-     This function processes each sample from a given input file to identify the best fitting mutational signatures based on the COSMIC database, and then exports the exposure estimates to a specified output folder.
+     Analyzes genetic samples to determine their fit against known COSMIC (Catalogue Of Somatic Mutations In Cancer) signatures or custom signatures.
+     This function processes each sample from a given input file to identify the best fitting mutational signatures based on the COSMIC database or custom signatures, and then exports the exposure estimates to a specified output folder.
 
      Parameters:
      - samples_file (str): Path to the file containing the genetic sample data to be analyzed.
@@ -50,10 +50,10 @@ def cosmic_fit(samples_file, output_folder, threshold=0.01,
      - The function requires numpy for matrix operations and assumes the availability of `load_signatures_file`, `load_samples_file`, `process_sample`, and `utils.create_folder_if_not_exists` utility functions.
      - The output CSV file will contain the names of the signatures as the first row and the names of the samples as the first column. The rest of the matrix represents the estimated exposures of each sample to each signature.
      """
-    if isinstance(cosmic_version, float):
-        COSMIC, names_signatures = load_signatures_file(versions[cosmic_version])
-    if isinstance(cosmic_version, str):
-        COSMIC, names_signatures = load_signatures_file(cosmic_version)
+    if isinstance(signatures, float):
+        sigs, names_signatures = load_signatures_file(versions[signatures])
+    if isinstance(signatures, str):
+        sigs, names_signatures = load_signatures_file(signatures)
     samples, names_patients = load_samples_file(samples_file)
 
     output = np.zeros((samples.shape[1], len(names_signatures)))
@@ -61,7 +61,7 @@ def cosmic_fit(samples_file, output_folder, threshold=0.01,
 
     for i in range(samples.shape[1]):
         _, best_columns, estimation_exposures = process_sample(
-            (i, samples[:, i], COSMIC, threshold, mutation_count, R, significance_level))
+            (i, samples[:, i], sigs, threshold, mutation_count, R, significance_level))
 
         if best_columns is not None:
                 for ind, col in enumerate(best_columns):

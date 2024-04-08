@@ -1,4 +1,4 @@
-from sigconfide.modelselection.analyzer import cosmic_fit
+from sigconfide.modelselection.analyzer import fit
 
 import unittest
 import os
@@ -20,8 +20,20 @@ class TestCosmicFit(unittest.TestCase):
         if os.path.exists(expected_output_path):
             os.remove(expected_output_path)
 
-        cosmic_fit(os.path.join(current_dir, 'data', 'reduced_data.dat'),  output_dir, cosmic_version=2.0)
+        fit(os.path.join(current_dir, 'data', 'reduced_data.dat'),  output_dir, signatures=2.0)
 
         self.assertTrue(os.path.exists(expected_output_path), "The CSV file was not generated.")
         remove_folder(output_dir)
 
+    def test_cosmic_fit_generates_csv_with_your_signatures(self):
+        output_dir = 'output_breast_signatures'
+        expected_output_filename = 'Assignment_Solution_Activities.csv'
+        expected_output_path = os.path.join(output_dir, expected_output_filename)
+
+        if os.path.exists(expected_output_path):
+            os.remove(expected_output_path)
+
+        fit(os.path.join(current_dir, 'data', 'reduced_data.dat'),  output_dir, signatures=os.path.join(current_dir, 'data', 'Breast_Signatures.csv'), drop_zeros_columns=True)
+
+        self.assertTrue(os.path.exists(expected_output_path), "The CSV file was not generated.")
+        remove_folder(output_dir)
