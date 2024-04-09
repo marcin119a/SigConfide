@@ -1,4 +1,5 @@
 # SigConfide
+![github actions](https://github.com/marcin119a/sigconfide/actions/workflows/ci.yml/badge.svg)
 
 SigConfide facilitates the allocation of established mutational signatures to specific samples and individual somatic mutations. 
 This tool reanalyzes various reference mutational signatures, such as those from [COSMIC](https://cancer.sanger.ac.uk/signatures/), in addition to personalized signature databases. 
