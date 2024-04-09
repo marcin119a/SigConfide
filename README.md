@@ -48,10 +48,16 @@ The CSV file's first row lists the signatures, the first column lists the sample
 
 ### Examples
 
-Using a mutational matrix as input
+Using a mutational matrix as input and cosmic version:
 ```python
-from sigconfide.modelselection.analyzer import cosmic_fit
+from sigconfide.modelselection.analyzer import fit
 
-cosmic_fit('data/reduced_data.dat',  'output', cosmic_version=3.4, drop_zeros_columns=True)
+fit('data/tumorBRCA.txt', 'output', signatures=3.1, threshold=0.01, mutation_count=1000, drop_zeros_columns=True)
 ```
 
+Using a mutational matrix as input and specific signatures:
+```python
+from sigconfide.modelselection.analyzer import fit
+
+fit('data/format_1.dat',  'output', signatures='data/Breast_Signatures.csv', drop_zeros_columns=True)
+```
