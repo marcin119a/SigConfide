@@ -25,7 +25,7 @@ class TestCosmicFit(unittest.TestCase):
         self.assertTrue(os.path.exists(expected_output_path), "The CSV file was not generated.")
         remove_folder(output_dir)
 
-    def test_cosmic_fit_generates_csv_with_your_signatures(self):
+    def test_fit_generates_csv_with_your_signatures(self):
         output_dir = 'output_breast_signatures'
         expected_output_filename = 'Assignment_Solution_Activities.csv'
         expected_output_path = os.path.join(output_dir, expected_output_filename)

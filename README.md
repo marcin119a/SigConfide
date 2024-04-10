@@ -19,7 +19,7 @@ pip install -e git+https://github.com/marcin119a/sigconfide.git#egg=sigconfide
 # Running 
 
 
-#### COSMIC Fit Function Description
+#### Fit Function Description
 
 The `fit` function is designed to analyze genetic samples and evaluate their alignment with known COSMIC (Catalogue Of Somatic Mutations In Cancer) signatures. 
 It meticulously processes each sample provided in the input file to pinpoint the most compatible mutational signatures from the COSMIC database. Subsequently,
@@ -29,16 +29,16 @@ it calculates the exposure estimates for these signatures and outputs the result
 
 The function's behavior can be customized through the following parameters:
 
-| Parameter            | Type         | Description                                                                                                 | Default |
-|----------------------|--------------|-------------------------------------------------------------------------------------------------------------|---------|
-| `samples_file`       | str          | Path to the file with genetic sample data.                                                                  | -       |
-| `output_folder`      | str          | Path to the directory for saving output files.                                                              | -       |
-| `threshold`          | float        | Threshold for matching a sample to a signature.                                                             | 0.01    |
-| `mutation_count`     | int          | Number of mutations to analyze. If `None`, all available mutations in the samples are used.                 | None    |
-| `R`                  | int          | Iteration count for the fitting algorithm, affecting both accuracy and computation time.                    | 100     |
-| `significance_level` | float        | Statistical significance level for the fitting process.                                                     | 0.01    |
-| `signatures`         | float or str | Version of the COSMIC mutational signatures database (2.0, 3.4, 3.1, 3.0) to use or custom signatures file. | 3.4     |
-| `drop_zeros_columns` | bool         | If `True`, excludes columns with zero values from the output matrix.                                        | False   |
+| Parameter            | Type         | Description                                                                                                                                                                                                        | Default |
+|----------------------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `samples_file`       | str          | Path to the file with genetic sample data.                                                                                                                                                                         | -       |
+| `output_folder`      | str          | Path to the directory for saving output files.                                                                                                                                                                     | -       |
+| `threshold`          | float        | The threshold above which exposures are considered significant. Defaults to 0.01.                                                                                                                                  | 0.01    |
+| `mutation_count`     | int          | The observed mutation profile vector for a patient/sample. If m is a vector of counts, then mutation_count equals the summation of all the counts. If m is probabilities, then mutation_count has to be specified. | None    |
+| `R`                  | int          | The number of bootstrap replicates.                                                                                                                                                                                | 100     |
+| `significance_level` | float        | The statistical significance level used in the fitting process.                                                                                                                                                    | 0.01    |
+| `signatures`         | float or str | Version of the COSMIC mutational signatures database (2.0, 3.4, 3.1, 3.0) to use or path to the custom signatures file.                                                                                            | 3.4     |
+| `drop_zeros_columns` | bool         | If `True`, excludes columns with zero values from the output matrix.                                                                                                                                               | False   |
 
 ### Output
 
@@ -48,16 +48,17 @@ The CSV file's first row lists the signatures, the first column lists the sample
 
 ### Examples
 
-Using a mutational matrix as input and cosmic version:
+Using a mutational matrix as input and cosmic signatures:
 ```python
 from sigconfide.modelselection.analyzer import fit
 
 fit('data/tumorBRCA.txt', 'output', signatures=3.1, threshold=0.01, mutation_count=1000, drop_zeros_columns=True)
 ```
 
+
 Using a mutational matrix as input and specific signatures:
 ```python
 from sigconfide.modelselection.analyzer import fit
-
 fit('data/format_1.dat',  'output', signatures='data/Breast_Signatures.csv', drop_zeros_columns=True)
+
 ```

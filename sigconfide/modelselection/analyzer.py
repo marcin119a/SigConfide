@@ -37,7 +37,7 @@ def fit(samples_file, output_folder, threshold=0.01,
      - samples_file (str): Path to the file containing the genetic sample data to be analyzed.
      - output_folder (str): Path to the folder where the output files containing the assignment of samples to mutational signatures will be saved.
      - threshold (float, optional): The threshold value used to determine the fit of a sample to a signature. Default is 0.01.
-     - mutation_count (int, optional): The total number of mutations to consider in the analysis. If None, the function will use all mutations available in the samples. Default is None.
+     - mutation_count (int, optional): The observed mutation profile vector for a patient/sample. If m is a vector of counts, then mutation_count equals the summation of all the counts. If m is probabilities, then mutation_count has to be specified.
      - R (int, optional): The number of iterations for the fitting algorithm. Higher values increase accuracy but also computational time. Default is 100.
      - significance_level (float, optional): The statistical significance level used in the fitting process. Default is 0.01.
      - cosmic_version (float, optional): The version of the COSMIC mutational signatures to use. Default is 3.4.

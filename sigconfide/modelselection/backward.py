@@ -29,11 +29,12 @@ def bootstraped_patient(m, mutation_count, R):
     """
     Generate a bootstrap distribution of mutation profiles for a patient/sample.
 
-    This function creates a set of bootstrap replicates of the patient's mutation profile by resampling with replacement. It's used to simulate the variability in the mutation profile and assess the stability of the signature exposures.
+    This function creates a set of bootstrap replicates of the patient's mutation profile by resampling with replacement.
+    It's used to simulate the variability in the mutation profile and assess the stability of the signature exposures.
 
     :param m: The observed mutation profile vector for a patient/sample.
     :type m: numpy.ndarray
-    :param mutation_count: The total number of mutations to be resampled in each bootstrap replicate. If not provided, it will be calculated from 'm'.
+    :param mutation_count: The observed mutation profile vector for a patient/sample. If m is a vector of counts, then mutation_count equals the summation of all the counts. If m is probabilities, then mutation_count has to be specified.
     :type mutation_count: int
     :param R: The number of bootstrap replicates to generate.
     :type R: int
