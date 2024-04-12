@@ -2,3 +2,4 @@ scipy
 unitest
 quadprog
 numpy
+coverage
