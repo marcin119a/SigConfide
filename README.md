@@ -46,7 +46,7 @@ The function does not return any values but instead writes the analysis results 
 The CSV file's first row lists the signatures, the first column lists the sample names, and the subsequent cells contain the estimated exposure levels.
 
 
-### Examples
+### Examples fit 
 
 Using a mutational matrix as input and cosmic signatures:
 ```python
@@ -61,4 +61,85 @@ Using a mutational matrix as input and specific signatures:
 from sigconfide.modelselection.analyzer import fit
 fit('data/format_1.dat',  'output', signatures='data/Breast_Signatures.csv', drop_zeros_columns=True)
 
+```
+
+# Specific usage of the SigConfide
+
+### Function: `bootstrapSigExposures`
+
+
+This function computes the bootstrap distribution of signature exposures for a given tumor sample using a specified decomposition method.
+
+#### Parameters
+
+- `m` (`numpy.ndarray`): The observed tumor profile vector for a patient or sample. This vector should have the shape (96, 1) and may represent either mutation counts or mutation probabilities.
+- `P` (`numpy.ndarray`): The signature profile matrix with a shape of (96, N), where N represents the number of signatures (e.g., COSMIC signatures where N=30).
+- `R` (`int`): The number of bootstrap replicates to perform.
+- `mutation_count` (`int`, optional): If `m` is a vector of counts, then `mutation_count` equals the sum of all counts. If `m` is probabilities, `mutation_count` must be specified to ensure accurate computation.
+- `decomposition_method` (`function`, optional): The decomposition method used to derive the optimal solution. Default is `decomposeQP`, which should be defined externally.
+
+#### Returns
+
+A tuple containing two `numpy.ndarray` elements:
+- `exposures`: A matrix of signature exposures for each bootstrap replicate (one column per replicate).
+- `errors`: An estimation error for each bootstrap replicate, computed using the Frobenius norm.
+
+#### Raises
+
+- `ValueError`: Raised if the length of vector `m` does not match the number of rows in matrix `P`, if `P` has fewer than 2 columns, or if `mutation_count` is not specified when `m` represents probabilities.
+
+#### Examples
+
+Here are some examples on how to use the `bootstrapSigExposures` function:
+
+```python
+from sigconfide.estimates.bootstrap import bootstrapSigExposures
+from sigconfide.decompose.qp import decomposeQP
+
+# Example 1: Typical usage with specified number of bootstrap replicates and mutation count
+bootstrapSigExposures(patient_catalog, signaturesCOSMIC, 100, 2000, decomposeQP)
+
+# Example 2: Specifying a subset of signatures to analyze
+sigsBRCA = [1, 2, 3, 5, 6, 8, 13, 17, 18, 20, 26, 30]
+bootstrapSigExposures(patient_catalog, signaturesCOSMIC[:, sigsBRCA], 10, 1000, decomposeQP)
+```
+
+## Function: `findSigExposures`
+
+This function calculates the signature exposures for tumor profiles across multiple patients or samples, employing a quadratic programming method, typically involving quadratic programming to resolve the optimization problem inherent in the analysis.
+
+#### Parameters
+
+- `M` (`numpy.ndarray`): The observed tumor profile matrix for all patients or samples. This matrix should have a shape of (96, G), where G is the number of patients. Each column, which can represent mutation counts or probabilities, will be normalized to sum up to 1.
+- `P` (`numpy.ndarray`): The signature profile matrix with dimensions (96, N), where N is the number of signatures (e.g., COSMIC signatures with N=30).
+- `decomposition_method` (`function`, optional): The method used to derive the optimal solution. It should be a function. The default is `decomposeQP`.
+
+####  Returns
+
+A tuple containing two `numpy.ndarray` elements:
+- `exposures`: A matrix of signature exposures per patient or sample (one column per patient/sample).
+- `errors`: An estimation error for each patient or sample, calculated using the Frobenius norm.
+
+####  Raises
+
+- `ValueError`: Raised if the matrix `M` and matrix `P` do not have the same number of rows (indicative of mutation types), if `P` has fewer than 2 columns, or if the `decomposition_method` is not a function.
+
+####  Examples
+
+Here are some examples illustrating how to use the `findSigExposures` function:
+
+```python
+from sigconfide.estimates.standard import findSigExposures
+from sigconfide.decompose.qp import decomposeQP
+import numpy as np 
+
+# Example 1: Basic usage with default decomposition method
+E1 = findSigExposures(tumorBRCA, signaturesCOSMIC, decomposeQP)
+
+# Example 2: Specifying a subset of signatures for analysis
+sigsBRCA = [1, 2, 3, 5, 6, 8, 13, 17, 18, 20, 26, 30]
+E2 = findSigExposures(tumorBRCA, signaturesCOSMIC[:, sigsBRCA], decomposeQP)
+
+# Example 3: Using counts scaled up for precision
+E3 = findSigExposures(np.round(tumorBRCA * 10000), signaturesCOSMIC, decomposeQP)
 ```
