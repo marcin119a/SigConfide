@@ -1,4 +1,4 @@
-from sigconfide.modelselection.backward import backward_elimination
+from sigconfide.modelselection.hybrid import hybrid_selection_one_loop
 from sigconfide.utils.utils import load_samples_file, load_signatures_file
 from sigconfide.utils import utils
 import numpy as np
@@ -18,7 +18,7 @@ versions = {
 def process_sample(args):
     i, col, sigs, threshold, mutation_count, R, significance_level = args
     try:
-        best_columns, estimation_exposures = backward_elimination(
+        best_columns, estimation_exposures = hybrid_selection_one_loop(
             col, sigs, threshold=threshold, mutation_count=mutation_count, R=R, significance_level=significance_level
         )
         return (i, best_columns, estimation_exposures)
