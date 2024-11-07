@@ -6,14 +6,22 @@ from sigconfide.modelselection.backward import compute_p_value, bootstraped_pati
 
 # Funkcje compute_p_value i bootstraped_patient pozostają bez zmian
 
-def hybrid_selection_one_loop(
+import numpy as np
+from sigconfide.estimates.standard import findSigExposures
+from sigconfide.decompose.qp import decomposeQP
+from sigconfide.utils.utils import is_wholenumber
+from sigconfide.modelselection.backward import compute_p_value, bootstraped_patient
+
+# Funkcje compute_p_value i bootstraped_patient pozostają bez zmian
+
+def hybrid_selection(
     m, P, R, threshold, mutation_count, significance_level, decomposition_method=decomposeQP
 ):
     """
-    Perform a hybrid selection process combining backward elimination and forward selection in one loop.
+    Perform a hybrid selection process: start with backward elimination and follow up with forward selection.
     
-    This function iteratively removes non-significant signatures and attempts to add previously removed signatures
-    back to the model in the same loop to ensure no significant signature is omitted.
+    This function first performs backward elimination to remove non-significant signatures, then re-evaluates 
+    removed signatures to add back any that significantly contribute to the mutation profile.
 
     :param m: The observed mutation profile vector for a patient/sample.
     :type m: numpy.ndarray
@@ -33,15 +41,15 @@ def hybrid_selection_one_loop(
     :returns: A tuple containing the indices of the significant signatures and the exposures and errors from decomposing the original mutation profile.
     :rtype: tuple(numpy.ndarray, tuple(numpy.ndarray, numpy.ndarray))
     """
+    # Step 1: Backward Elimination
     best_columns = np.arange(P.shape[1])
     P_temp = P
     M = bootstraped_patient(m, mutation_count, R)
+
     removed_columns = []
 
     while True:
         changed = False
-
-        # Backward elimination step
         exposures, errors = findSigExposures(M, P_temp, decomposition_method=decomposition_method)
         p_values = compute_p_value(exposures, threshold=threshold)
 
@@ -54,25 +62,21 @@ def hybrid_selection_one_loop(
             P_temp = P[:, best_columns]
             changed = True
 
-        # Forward selection step
-        for col in removed_columns[:]:
-            current_columns = np.append(best_columns, col)
-            P_test = P[:, current_columns]
-            exposures, errors = findSigExposures(M, P_test, decomposition_method=decomposition_method)
-            p_values = compute_p_value(exposures, threshold=threshold)
-
-            if p_values[-1] < significance_level:  # Check if the added column is significant
-                best_columns = current_columns  # Add the column to the best set
-                removed_columns.remove(col)  # Remove it from the removed list
-                P_temp = P[:, best_columns]
-                changed = True
-
         if not changed:
             break
 
+    # Step 2: Forward Selection
+    for col in removed_columns:
+        current_columns = np.append(best_columns, col)
+        P_test = P[:, current_columns]
+
+        exposures, errors = findSigExposures(M, P_test, decomposition_method=decomposition_method)
+        p_values = compute_p_value(exposures, threshold=threshold)
+
+        if p_values[-1] < significance_level:  # Check if the added column is significant
+            best_columns = current_columns  # Add the column to the best set
+            print('test')
     return (
         best_columns,
         findSigExposures(m.reshape(-1, 1), P[:, best_columns], decomposition_method=decomposition_method),
     )
-
-
