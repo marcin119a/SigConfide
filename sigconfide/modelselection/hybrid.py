@@ -75,7 +75,6 @@ def hybrid_selection(
 
         if p_values[-1] < significance_level:  # Check if the added column is significant
             best_columns = current_columns  # Add the column to the best set
-            print('test')
     return (
         best_columns,
         findSigExposures(m.reshape(-1, 1), P[:, best_columns], decomposition_method=decomposition_method),
