@@ -4,15 +4,6 @@ from sigconfide.decompose.qp import decomposeQP
 from sigconfide.utils.utils import is_wholenumber
 from sigconfide.modelselection.backward import compute_p_value, bootstraped_patient
 
-# Funkcje compute_p_value i bootstraped_patient pozostają bez zmian
-
-import numpy as np
-from sigconfide.estimates.standard import findSigExposures
-from sigconfide.decompose.qp import decomposeQP
-from sigconfide.utils.utils import is_wholenumber
-from sigconfide.modelselection.backward import compute_p_value, bootstraped_patient
-
-# Funkcje compute_p_value i bootstraped_patient pozostają bez zmian
 
 def hybrid_selection(
     m, P, R, threshold, mutation_count, significance_level, decomposition_method=decomposeQP
