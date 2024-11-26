@@ -47,34 +47,32 @@ def hybrid_selection(
     M = bootstraped_patient(m, mutation_count, R)
 
     removed_columns = []
-
+    _, errors = findSigExposures(m.reshape(-1, 1), P[:, best_columns], decomposition_method=decomposition_method)
+    current_error = errors[0]
+    bs = []
     while True:
         changed = False
-        exposures, errors = findSigExposures(M, P_temp, decomposition_method=decomposition_method)
+        exposures, errors = findSigExposures(M, P[:, best_columns], decomposition_method=decomposition_method)
         p_values = compute_p_value(exposures, threshold=threshold)
 
         max_p_value = p_values.max()
         if max_p_value > significance_level:
             indices_with_max = np.where(p_values == max_p_value)[0]
             max_p_var = np.random.choice(indices_with_max)
-            removed_columns.append(best_columns[max_p_var])
-            best_columns = np.delete(best_columns, max_p_var)
-            P_temp = P[:, best_columns]
-            changed = True
+            candidate_columns = np.delete(best_columns, max_p_var)
+            _, new_error = findSigExposures(m.reshape(-1, 1), P[:, candidate_columns], decomposition_method=decomposition_method)
+
+            if new_error[0] - current_error <= 0.01:
+                bs.append(current_error)
+                current_error = new_error[0]
+                removed_columns.append(best_columns[max_p_var])
+                best_columns = candidate_columns
+                changed = True
 
         if not changed:
             break
 
-    # Step 2: Forward Selection
-    for col in removed_columns:
-        current_columns = np.append(best_columns, col)
-        P_test = P[:, current_columns]
 
-        exposures, errors = findSigExposures(M, P_test, decomposition_method=decomposition_method)
-        p_values = compute_p_value(exposures, threshold=threshold)
-
-        if p_values[-1] < significance_level:  # Check if the added column is significant
-            best_columns = current_columns  # Add the column to the best set
     return (
         best_columns,
         findSigExposures(m.reshape(-1, 1), P[:, best_columns], decomposition_method=decomposition_method),
