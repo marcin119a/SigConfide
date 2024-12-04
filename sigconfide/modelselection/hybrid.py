@@ -47,9 +47,8 @@ def hybrid_selection(
         max_p_value = p_values.max()
         if max_p_value > significance_level:
             indices_with_max = np.where(p_values == max_p_value)[0]
-            max_p_var = np.random.choice(indices_with_max)
             removed_columns.append(best_columns[max_p_var])
-            best_columns = np.delete(best_columns, max_p_var)
+            best_columns = np.delete(best_columns, indices_with_max)
             P_temp = P[:, best_columns]
             changed = True
 
